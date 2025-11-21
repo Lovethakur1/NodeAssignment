@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover { background: #0056b3; }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        #events {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .event {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-left: 4px solid #007bff;
+            border-radius: 3px;
+        }
+        .event-time { color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 WebSocket Test Client</h1>
+        
+        <div>
+            <label>JWT Token:</label>
+            <input type="text" id="token" placeholder="Paste your JWT token here">
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+
+        <div id="status" class="disconnected">
+            Status: <span id="statusText">Disconnected</span>
+        </div>
+
+        <h3>Events Log:</h3>
+        <div id="events"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+
+        function addEvent(type, data) {
+            const eventsDiv = document.getElementById('events');
+            const event = document.createElement('div');
+            event.className = 'event';
+            event.innerHTML = `
+                <div class="event-time">${new Date().toLocaleTimeString()}</div>
+                <strong>${type}</strong>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            eventsDiv.insertBefore(event, eventsDiv.firstChild);
+        }
+
+        function updateStatus(connected) {
+            const statusDiv = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            
+            if (connected) {
+                statusDiv.className = 'connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusDiv.className = 'disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        function connect() {
+            const token = document.getElementById('token').value;
+            
+            if (!token) {
+                alert('Please enter a JWT token');
+                return;
+            }
+
+            if (socket) {
+                socket.disconnect();
+            }
+
+            socket = io('http://localhost:4000', {
+                auth: {
+                    token: token
+                }
+            });
+
+            socket.on('connect', () => {
+                updateStatus(true);
+                addEvent('connect', { message: 'Connected to server' });
+            });
+
+            socket.on('connected', (data) => {
+                addEvent('connected', data);
+            });
+
+            socket.on('disconnect', () => {
+                updateStatus(false);
+                addEvent('disconnect', { message: 'Disconnected from server' });
+            });
+
+            // Task events
+            socket.on('task:created', (data) => {
+                addEvent('task:created', data);
+            });
+
+            socket.on('task:assigned', (data) => {
+                addEvent('task:assigned', data);
+            });
+
+            socket.on('task:updated', (data) => {
+                addEvent('task:updated', data);
+            });
+
+            socket.on('task:completed', (data) => {
+                addEvent('task:completed', data);
+            });
+
+            socket.on('task:deleted', (data) => {
+                addEvent('task:deleted', data);
+            });
+
+            socket.on('connect_error', (error) => {
+                updateStatus(false);
+                addEvent('error', { message: error.message });
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateStatus(false);
+            }
+        }
+    </script>
+</body>
+</html>
