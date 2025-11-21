@@ -43,7 +43,7 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
       {
-        url: 'https://your-deployed-api.com',
+        url: 'http://210.79.128.186:4000',
         description: 'Production server',
       },
     ],
