@@ -9,7 +9,14 @@ import { swaggerSpec } from './config/swagger';
 const app: Application = express();
 
 // Security Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  })
+);
 app.use(cors(config.cors));
 
 // Logging Middleware
