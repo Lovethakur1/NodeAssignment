@@ -3,18 +3,24 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
 import { config } from './config';
 import { swaggerSpec } from './config/swagger';
 
 const app: Application = express();
 
-// Security Middleware
+// Disable trust proxy completely to prevent HTTPS detection
+app.set('trust proxy', false);
+app.disable('x-powered-by');
+
+// Security Middleware - Minimal helmet config for HTTP
 app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
     crossOriginOpenerPolicy: false,
     crossOriginResourcePolicy: false,
+    hsts: false,
   })
 );
 app.use(cors(config.cors));
@@ -30,8 +36,40 @@ if (config.env === 'development') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Force HTTP for all Swagger-related requests
+app.use('/api-docs', (req: Request, res: Response, next: NextFunction) => {
+  // Override any HTTPS-related headers
+  req.headers['x-forwarded-proto'] = 'http';
+  req.headers['x-forwarded-ssl'] = 'off';
+  delete req.headers['x-forwarded-port'];
+  
+  // Set response headers to prevent HTTPS
+  res.setHeader('Strict-Transport-Security', 'max-age=0');
+  
+  next();
+});
+
+// API Documentation with custom options
+const swaggerOptions: swaggerUi.SwaggerUiOptions = {
+  swaggerOptions: {
+    url: '/api-docs/swagger.json',
+  },
+  customSiteTitle: 'Task Management API',
+  customCss: '.swagger-ui .topbar { display: none }',
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
+
+// Serve the swagger spec as JSON
+app.get('/api-docs/swagger.json', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Serve alternative API documentation page
+app.get('/apidocPage', (_req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'views', 'api-docs.html'));
+});
 
 // Health Check Endpoint
 app.get('/health', (_req: Request, res: Response) => {

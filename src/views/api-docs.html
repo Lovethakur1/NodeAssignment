@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .endpoint-group {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        .endpoint:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-right: 1rem;
+        }
+
+        .method.get { background: #61affe; color: white; }
+        .method.post { background: #49cc90; color: white; }
+        .method.put { background: #fca130; color: white; }
+        .method.patch { background: #50e3c2; color: white; }
+        .method.delete { background: #f93e3e; color: white; }
+
+        .path {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .description {
+            margin-top: 0.5rem;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .auth-required {
+            display: inline-block;
+            background: #ffe58f;
+            color: #d48806;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .badge.admin { background: #ff4d4f; color: white; }
+        .badge.manager { background: #ff7a45; color: white; }
+        .badge.user { background: #52c41a; color: white; }
+
+        .server-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .server-card {
+            background: #f0f2f5;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .server-card strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        code {
+            background: #f0f2f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .test-button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🚀 Task Management API</h1>
+            <p class="subtitle">RESTful API with Authentication, RBAC, and Real-time Features</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Server Information -->
+        <div class="info-section">
+            <h2 class="section-title">📡 Server Information</h2>
+            <div class="server-info">
+                <div class="server-card">
+                    <strong>Base URL</strong>
+                    <code>http://210.79.128.186:4000/api</code>
+                </div>
+                <div class="server-card">
+                    <strong>WebSocket URL</strong>
+                    <code>ws://210.79.128.186:4000</code>
+                </div>
+                <div class="server-card">
+                    <strong>Version</strong>
+                    <code>1.0.0</code>
+                </div>
+                <div class="server-card">
+                    <strong>Swagger UI</strong>
+                    <code><a href="/api-docs" style="color: #667eea;">View Swagger</a></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="info-section">
+            <h2 class="section-title">🔐 Authentication</h2>
+            <p>This API uses JWT (JSON Web Token) for authentication. Include the token in the Authorization header:</p>
+            <div class="example">Authorization: Bearer YOUR_JWT_TOKEN</div>
+            <p style="margin-top: 1rem;"><strong>Test Credentials:</strong></p>
+            <div class="example">{
+  "username": "admin",
+  "email": "admin@admin.com",
+  "password": "Admin@1234"
+}</div>
+        </div>
+
+        <!-- Authentication Endpoints -->
+        <div class="endpoint-group">
+            <h2 class="section-title">👤 Authentication Endpoints</h2>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/register</span>
+                </div>
+                <div class="description">Register a new user account</div>
+                <div class="example">{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "SecurePass@123",
+  "role": "user",
+  "team": "Engineering"
+}</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/login</span>
+                </div>
+                <div class="description">Login and receive JWT token</div>
+                <div class="example">{
+  "email": "john@example.com",
+  "password": "SecurePass@123"
+}</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/logout</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Logout and invalidate JWT token</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/auth/profile</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Get current user profile</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/auth/users</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                    <span class="badge admin">Admin</span>
+                    <span class="badge manager">Manager</span>
+                </div>
+                <div class="description">Get all users (Admin/Manager only)</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/auth/users/:id/role</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                    <span class="badge admin">Admin</span>
+                </div>
+                <div class="description">Update user role (Admin only)</div>
+                <div class="example">{
+  "role": "manager"
+}</div>
+            </div>
+        </div>
+
+        <!-- Task Endpoints -->
+        <div class="endpoint-group">
+            <h2 class="section-title">📋 Task Management Endpoints</h2>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/tasks</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Get all tasks with pagination and filters</div>
+                <div class="example">Query Parameters:
+- page: number (default: 1)
+- limit: number (default: 10)
+- status: todo | in-progress | completed | overdue
+- priority: low | medium | high
+- search: string
+- sortBy: createdAt | dueDate | priority
+- sortOrder: asc | desc</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/tasks/:id</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Get a specific task by ID</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/tasks</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                    <span class="badge manager">Manager</span>
+                    <span class="badge admin">Admin</span>
+                </div>
+                <div class="description">Create a new task (Manager/Admin only)</div>
+                <div class="example">{
+  "title": "Complete project documentation",
+  "description": "Write comprehensive API docs",
+  "dueDate": "2025-12-31T23:59:59Z",
+  "priority": "high",
+  "assignedTo": "60d5ecb8b392f045c8d67394",
+  "team": "Engineering"
+}</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/tasks/:id</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Update a task</div>
+                <div class="example">{
+  "title": "Updated title",
+  "status": "in-progress",
+  "priority": "medium"
+}</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/tasks/:id/status</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Update task status</div>
+                <div class="example">{
+  "status": "completed"
+}</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/tasks/:id</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                    <span class="badge manager">Manager</span>
+                    <span class="badge admin">Admin</span>
+                </div>
+                <div class="description">Delete a task (Manager/Admin only)</div>
+            </div>
+        </div>
+
+        <!-- Analytics Endpoints -->
+        <div class="endpoint-group">
+            <h2 class="section-title">📊 Analytics Endpoints</h2>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/analytics/overview</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Get analytics overview (cached for 10 minutes)</div>
+                <div class="example">Response includes:
+- Total tasks
+- Completed tasks
+- Completion rate
+- Tasks by status
+- Tasks by priority
+- Average completion time</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/analytics/team/:team</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                    <span class="badge manager">Manager</span>
+                    <span class="badge admin">Admin</span>
+                </div>
+                <div class="description">Get team-specific analytics (Manager/Admin only)</div>
+            </div>
+
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/api/analytics/user/:userId</span>
+                    <span class="auth-required">🔒 Auth Required</span>
+                </div>
+                <div class="description">Get user-specific analytics</div>
+            </div>
+        </div>
+
+        <!-- WebSocket Events -->
+        <div class="info-section">
+            <h2 class="section-title">🔌 WebSocket Events</h2>
+            <p><strong>Connection URL:</strong> <code>ws://210.79.128.186:4000</code></p>
+            <p><strong>Authentication:</strong> Include JWT token in handshake query: <code>?token=YOUR_JWT_TOKEN</code></p>
+            
+            <div style="margin-top: 1rem;">
+                <h3 style="margin-bottom: 0.5rem;">Events:</h3>
+                <div class="endpoint">
+                    <strong>connected</strong> - Connection established successfully
+                </div>
+                <div class="endpoint">
+                    <strong>task:created</strong> - New task created
+                </div>
+                <div class="endpoint">
+                    <strong>task:assigned</strong> - Task assigned to user
+                </div>
+                <div class="endpoint">
+                    <strong>task:updated</strong> - Task updated
+                </div>
+                <div class="endpoint">
+                    <strong>task:completed</strong> - Task marked as complete
+                </div>
+                <div class="endpoint">
+                    <strong>task:deleted</strong> - Task deleted
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Format -->
+        <div class="info-section">
+            <h2 class="section-title">📦 Response Format</h2>
+            <h3>Success Response:</h3>
+            <div class="example">{
+  "success": true,
+  "data": { ... },
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 50,
+    "pages": 5
+  }
+}</div>
+
+            <h3 style="margin-top: 1rem;">Error Response:</h3>
+            <div class="example">{
+  "success": false,
+  "error": {
+    "message": "Error description",
+    "code": "ERROR_CODE",
+    "details": { ... }
+  }
+}</div>
+        </div>
+
+        <!-- Rate Limiting -->
+        <div class="info-section">
+            <h2 class="section-title">⚡ Rate Limiting</h2>
+            <p>API endpoints are rate-limited to prevent abuse:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Authentication endpoints: 5 requests per 15 minutes</li>
+                <li>General endpoints: 100 requests per 15 minutes</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        console.log('📚 Task Management API Documentation loaded');
+        console.log('🔗 Base URL: http://210.79.128.186:4000/api');
+    </script>
+</body>
+</html>

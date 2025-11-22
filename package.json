@@ -5,7 +5,8 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "tsc && npm run copy:assets",
+    "copy:assets": "powershell -Command \"New-Item -ItemType Directory -Path dist/views -Force; Copy-Item src/views/*.html -Destination dist/views/ -Force\"",
     "start": "node dist/server.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
